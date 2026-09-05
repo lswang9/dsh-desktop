@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { isUserInitiatedInstance } from '../src/main/launchd-guard'
 
-const mainBinary = '/Applications/DSH Desktop.app/Contents/MacOS/DSH Desktop'
+const mainBinary = '/Applications/Pierhouse.app/Contents/MacOS/Pierhouse'
 const helperBinary =
-  '/Applications/DSH Desktop.app/Contents/Frameworks/DSH Desktop Helper.app/Contents/MacOS/DSH Desktop Helper'
+  '/Applications/Pierhouse.app/Contents/Frameworks/Pierhouse Helper.app/Contents/MacOS/Pierhouse Helper'
 
 describe('second instance intent', () => {
   it('treats a plain application launch as the user asking for the window', () => {

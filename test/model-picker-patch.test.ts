@@ -17,7 +17,7 @@ const settingsModelsClient = path.join(
  * patch no longer carries it. Assert against the composed package instead: the
  * behavior still has to be there, and the patch still has to stay out of it.
  */
-describe('DSH Desktop available-model picker', () => {
+describe('Pierhouse available-model picker', () => {
   it('ships one state-driven select-all toggle', async () => {
     const client = await readFile(settingsModelsClient, 'utf8')
 
@@ -50,7 +50,7 @@ describe('DSH Desktop available-model picker', () => {
   })
 })
 
-describe('DSH Desktop model image-input declarations', () => {
+describe('Pierhouse model image-input declarations', () => {
   it('renders one shared per-model control for both adapter field names', async () => {
     const client = await readFile(settingsModelsClient, 'utf8')
 

@@ -10,8 +10,8 @@ describe.runIf(process.platform === 'darwin')('launch agent plist round trip', (
   const dshHome = join(testRoot, 'dsh-home')
   const home = join(testRoot, 'home')
   const launchAgents = join(home, 'Library', 'LaunchAgents')
-  const appBundlePath = join(testRoot, 'Applications', 'DSH Desktop.app')
-  const helper = join(appBundlePath, 'Contents', 'MacOS', 'DSH Desktop')
+  const appBundlePath = join(testRoot, 'Applications', 'Pierhouse.app')
+  const helper = join(appBundlePath, 'Contents', 'MacOS', 'Pierhouse')
   const plistPath = join(launchAgents, 'com.dsh.doctor.plist')
 
   beforeEach(async () => {

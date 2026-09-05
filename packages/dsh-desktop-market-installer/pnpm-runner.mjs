@@ -1,5 +1,5 @@
 /**
- * The pnpm entry every profile package operation goes through — DSH Desktop's
+ * The pnpm entry every profile package operation goes through — Pierhouse's
  * own installer and the community market alike, because both reach pnpm by
  * name and the packaged shim in `.desktop-bin` points here.
  *

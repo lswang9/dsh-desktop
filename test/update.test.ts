@@ -82,10 +82,10 @@ describe('macOS update metadata', () => {
     }
     expect(merged.version).toBe('0.2.0')
     expect(merged.files.map((file) => file.url)).toEqual([
-      'dsh-desktop-mac-arm64.zip',
-      'dsh-desktop-mac-x64.zip'
+      'pierhouse-mac-arm64.zip',
+      'pierhouse-mac-x64.zip'
     ])
-    expect(merged.path).toBe('dsh-desktop-mac-arm64.zip')
+    expect(merged.path).toBe('pierhouse-mac-arm64.zip')
     expect(merged.releaseDate).toBe('2026-08-14T02:00:00.000Z')
   })
 })
@@ -113,12 +113,12 @@ function metadata(architecture: 'arm64' | 'x64', releaseDate: string) {
     version: '0.2.0',
     files: [
       {
-        url: `dsh-desktop-mac-${architecture}.zip`,
+        url: `pierhouse-mac-${architecture}.zip`,
         sha512: `zip-${architecture}`,
         size: 100
       },
       {
-        url: `dsh-desktop-mac-${architecture}.dmg`,
+        url: `pierhouse-mac-${architecture}.dmg`,
         sha512: `dmg-${architecture}`,
         size: 200
       }

@@ -14,8 +14,8 @@ describe('launch agent audit', () => {
   const dshHome = join(testRoot, 'dsh-home')
   const home = join(testRoot, 'home')
   const launchAgents = join(home, 'Library', 'LaunchAgents')
-  const appBundlePath = '/Applications/DSH Desktop.app'
-  const helper = `${appBundlePath}/Contents/Frameworks/DSH Desktop Helper.app/Contents/MacOS/DSH Desktop Helper`
+  const appBundlePath = '/Applications/Pierhouse.app'
+  const helper = `${appBundlePath}/Contents/Frameworks/Pierhouse Helper.app/Contents/MacOS/Pierhouse Helper`
   const doctorPlist = join(launchAgents, 'com.dsh.doctor.plist')
 
   const brokenAgent: LaunchAgentRecord = {

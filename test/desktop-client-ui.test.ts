@@ -10,7 +10,7 @@ interface Registration {
   component: (props: Record<string, unknown>) => unknown
 }
 
-describe('DSH Desktop client slot occupants', () => {
+describe('Pierhouse client slot occupants', () => {
   it('registers one occupant per brand seat and keeps the official name mark-free', async () => {
     const source = await readFile(
       path.join(projectRoot, 'packages', 'dsh-desktop-client-ui', 'client.js'),
@@ -49,8 +49,6 @@ describe('DSH Desktop client slot occupants', () => {
       type,
       props: { ...props, children }
     })
-    const BrandWordmark = vi.fn()
-    const FishLogo = vi.fn()
     const plugin = definition!.factory((id) => {
       if (id === 'react') {
         return {
@@ -58,9 +56,6 @@ describe('DSH Desktop client slot occupants', () => {
           useEffect: (effect: () => void | (() => void)) => effect(),
           useState: (initial: unknown) => [initial, vi.fn()]
         }
-      }
-      if (id === '@deepseek-ai/dsh-client-ui-primitives') {
-        return { BrandWordmark, FishLogo }
       }
       throw new Error(`Unexpected client dependency: ${id}`)
     })
@@ -95,8 +90,9 @@ describe('DSH Desktop client slot occupants', () => {
     const sidebarName = registrations.find(
       ({ config }) => config.name === 'sidebar.brand.name'
     )!.component({}) as { type: unknown; props: Record<string, unknown> }
-    expect(sidebarName.type).toBe(BrandWordmark)
-    expect(sidebarName.props.includeMark).toBe(false)
+    expect(sidebarName.type).toBe('span')
+    expect(sidebarName.props.className).toBe('dshDesktopBrandName')
+    expect(sidebarName.props.children).toEqual(['Pierhouse'])
 
     const sidebarMark = registrations.find(
       ({ config }) => config.name === 'sidebar.brand.mark'
@@ -107,7 +103,7 @@ describe('DSH Desktop client slot occupants', () => {
     const heroMark = registrations.find(
       ({ config }) => config.name === 'conversation.hero.brand.mark'
     )!.component({ size: 48 }) as { type: unknown; props: Record<string, unknown> }
-    expect(heroMark.type).toBe(FishLogo)
-    expect(heroMark.props.size).toBe(48)
+    expect(heroMark.type).toBe('svg')
+    expect(heroMark.props.height).toBe(17)
   })
 })

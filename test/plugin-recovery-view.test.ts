@@ -10,7 +10,7 @@ function failedSnapshot(logs: string[] = []): RuntimeSnapshot {
   return {
     phase: 'failed',
     message: 'Harness stopped unexpectedly. duplicate prefix route "/sidebar/api"',
-    launchDirectory: '/Users/ray/Library/Application Support/dsh-desktop/launch-root',
+    launchDirectory: '/Users/ray/Library/Application Support/pierhouse/launch-root',
     logs
   }
 }
@@ -38,7 +38,7 @@ describe('plugin recovery view model', () => {
 
   it.each([
     ['cannot resolve profile bundle example', '插件没有完整安装'],
-    ['package declares no dsh.bundle', '安装的包不是兼容的 DSH 插件'],
+    ['package declares no dsh.bundle', '安装的包不是兼容�?DSH 插件'],
     ['failed to import loader entry example', '插件代码加载失败'],
     ['duplicate loader entry id: storage', '插件注册了重复的服务组件'],
     ['single slot "conversation.hero.workspace.directoryFlow" already has a registration at priority 0', '插件存在界面插槽冲突']
@@ -56,11 +56,11 @@ describe('plugin recovery view model', () => {
     expect(model.heading).toBe('发现 2 个导致启动失败的插件')
     expect(model.summary).toBe('')
     expect(model.plugins).toEqual(['plugin-a', 'plugin-b'])
-    expect(model.primaryLabel).toBe('卸载这 2 个插件并继续检测')
+    expect(model.primaryLabel).toBe('卸载�?2 个插件并继续检�?)
     expect(model.canUninstall).toBe(true)
     expect(model).not.toHaveProperty('restartLabel')
     expect(model).not.toHaveProperty('status')
-    expect(model.advancedLabel).toBe('查看技术详情')
+    expect(model.advancedLabel).toBe('查看技术详�?)
   })
 
   it('shows progress when recovery discovers another conflict after a restart', () => {
@@ -70,7 +70,7 @@ describe('plugin recovery view model', () => {
       removedPlugins: ['plugin-a'],
       locale: 'zh'
     })
-    expect(model.progress).toContain('已处理 1 个插件')
+    expect(model.progress).toContain('已处�?1 个插�?)
     expect(model.plugins).toEqual(['plugin-b'])
   })
 
@@ -95,7 +95,7 @@ describe('plugin recovery view model', () => {
     expect(model.canUninstall).toBe(false)
     expect(model.summary).toContain('Enter Safe Mode')
     expect(model.primaryLabel).toBe('Enter Safe Mode')
-    expect(model.primaryBusyLabel).toBe('Entering Safe Mode…')
+    expect(model.primaryBusyLabel).toBe('Entering Safe Mode�?)
   })
 
   it('wires the unresolved recovery action to Safe Mode', async () => {
@@ -118,8 +118,8 @@ describe('plugin recovery view model', () => {
       }
     })
     expect(model.upgradeCandidate?.targetVersion).toBe('2.0.0')
-    expect(model.upgradeLabel).toBe('升级插件并重启')
+    expect(model.upgradeLabel).toBe('升级插件并重�?)
     expect(model.upgradeHint).toBe('该插件有新的兼容版本')
-    expect(model.uninstallLabel).toBe('仍要卸载此插件')
+    expect(model.uninstallLabel).toBe('仍要卸载此插�?)
   })
 })

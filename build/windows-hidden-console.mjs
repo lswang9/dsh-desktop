@@ -1,7 +1,31 @@
-import koffi from 'koffi'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /** SW_HIDE: hide the window (and activate another window). */
 const SW_HIDE = 0
+
+/**
+ * Resolve `koffi` for both packaged and local layouts.
+ *
+ * Packaged Electron puts this file in `resources/` while dependencies live in
+ * `resources/app/node_modules`. A bare `import 'koffi'` therefore fails at
+ * module evaluation time and aborts Harness before createHiddenConsole runs.
+ * Dev loads this file from `build/`, where `../node_modules` is the project root.
+ */
+function loadKoffi() {
+  const here = dirname(fileURLToPath(import.meta.url))
+  const roots = [join(here, 'app', 'noop.js'), join(here, '..', 'noop.js')]
+  let lastError
+  for (const root of roots) {
+    try {
+      return createRequire(root)('koffi')
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError ?? new Error('koffi not found')
+}
 
 /**
  * Attach a hidden console to the current (console-less) process.
@@ -24,10 +48,11 @@ const SW_HIDE = 0
  * @param load - library loader, injectable for tests (defaults to `koffi.load`).
  * @returns true when a console was attached and hidden.
  */
-export function createHiddenConsole({ load = koffi.load } = {}) {
+export function createHiddenConsole({ load } = {}) {
   try {
-    const kernel32 = load('kernel32.dll')
-    const user32 = load('user32.dll')
+    const resolvedLoad = load ?? loadKoffi().load
+    const kernel32 = resolvedLoad('kernel32.dll')
+    const user32 = resolvedLoad('user32.dll')
     const allocConsole = kernel32.func('AllocConsole', 'bool', [])
     const getConsoleWindow = kernel32.func('GetConsoleWindow', 'void *', [])
     const showWindow = user32.func('ShowWindow', 'bool', ['void *', 'int'])

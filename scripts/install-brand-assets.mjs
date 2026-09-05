@@ -80,7 +80,7 @@ await writeFile(
   replaceManifestIcon(manifest, path.relative(projectRoot, manifestPath))
 )
 
-console.log(`Installed DSH Desktop brand assets: ${[
+console.log(`Installed Pierhouse brand assets: ${[
   destination,
   lightDestination,
   darkDestination

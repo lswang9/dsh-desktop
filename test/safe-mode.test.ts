@@ -10,8 +10,8 @@ import {
 
 describe('Safe Mode', () => {
   it('is opt-in through an exact command-line switch', () => {
-    expect(shouldStartInSafeMode(['DSH Desktop', '--safe-mode'])).toBe(true)
-    expect(shouldStartInSafeMode(['DSH Desktop', '--safe-mode=false'])).toBe(false)
+    expect(shouldStartInSafeMode(['Pierhouse', '--safe-mode'])).toBe(true)
+    expect(shouldStartInSafeMode(['Pierhouse', '--safe-mode=false'])).toBe(false)
   })
 
   it('explains isolation and presents plugin leftovers in one cleanup plan', () => {
@@ -41,7 +41,7 @@ describe('Safe Mode', () => {
       applyLabel: 'Remove selected plugins',
       agentLabel: 'Close',
       restartLabel: 'Exit Safe Mode and restart',
-      quitLabel: 'Quit DSH Desktop'
+      quitLabel: 'Quit Pierhouse'
     })
   })
 

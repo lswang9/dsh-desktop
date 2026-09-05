@@ -138,7 +138,7 @@ describe('Harness launch contract', () => {
     // Windows environment variable names are case-insensitive and the captured
     // block is not normalised, so a machine whose registry PATH value name is
     // lowercase hands `resolveShellEnvironment()` the key `path`. An exact-case
-    // read misses it and the Harness launches with no PATH at all â€” every
+    // read misses it and the Harness launches with no PATH at all â€?every
     // PATH-resolved tool call fails with ENOENT (issue #232).
     const userPath = 'C:\\Windows\\System32;C:\\Users\\tester\\bin'
     const options = buildHarnessSpawnOptions('C:\\launch-root', 'C:\\harness', 'win32', {
@@ -178,25 +178,25 @@ describe('Harness launch contract', () => {
 
   it('disclaims macOS TCC responsibility when Harness runs as a utility process', () => {
     const spawnOptions = buildHarnessSpawnOptions(
-      '/Users/tester/Library/Application Support/dsh-desktop/launch-root',
+      '/Users/tester/Library/Application Support/pierhouse/launch-root',
       '/Users/tester/Library/Application Support/dsh-desktop/harness',
       'darwin',
       { PATH: '/usr/bin', ELECTRON_RUN_AS_NODE: '1' }
     )
     const nodeArguments = buildNodeArguments(
-      '/Applications/DSH Desktop.app/Contents/Resources/harness-node-entry.mjs',
-      '/Applications/DSH Desktop.app/Contents/Resources/app/node_modules/@deepseek-ai/dsh/lib/bin.js',
+      '/Applications/Pierhouse.app/Contents/Resources/harness-node-entry.mjs',
+      '/Applications/Pierhouse.app/Contents/Resources/app/node_modules/@deepseek-ai/dsh/lib/bin.js',
       43127,
-      '/Applications/DSH Desktop.app/Contents/Resources/dsh-desktop.patch.yml'
+      '/Applications/Pierhouse.app/Contents/Resources/dsh-desktop.patch.yml'
     )
 
     expect(buildDisclaimedUtilityProcessSpec(nodeArguments, spawnOptions)).toEqual({
-      modulePath: '/Applications/DSH Desktop.app/Contents/Resources/harness-node-entry.mjs',
+      modulePath: '/Applications/Pierhouse.app/Contents/Resources/harness-node-entry.mjs',
       args: [
-        '/Applications/DSH Desktop.app/Contents/Resources/app/node_modules/@deepseek-ai/dsh/lib/bin.js',
+        '/Applications/Pierhouse.app/Contents/Resources/app/node_modules/@deepseek-ai/dsh/lib/bin.js',
         'web',
         '--patch',
-        '/Applications/DSH Desktop.app/Contents/Resources/dsh-desktop.patch.yml',
+        '/Applications/Pierhouse.app/Contents/Resources/dsh-desktop.patch.yml',
         '--no-open',
         '--host',
         '127.0.0.1',
@@ -204,7 +204,7 @@ describe('Harness launch contract', () => {
         '43127'
       ],
       options: {
-        cwd: '/Users/tester/Library/Application Support/dsh-desktop/launch-root',
+        cwd: '/Users/tester/Library/Application Support/pierhouse/launch-root',
         env: {
           PATH: '/usr/bin',
           DSH_HOME: '/Users/tester/Library/Application Support/dsh-desktop/harness',
@@ -276,7 +276,7 @@ describe('shell environment resolution', () => {
   it('memoises the result across calls', () => {
     const first = resolveShellEnvironment()
     const second = resolveShellEnvironment()
-    // Same object reference â€” the result is cached for the process lifetime.
+    // Same object reference â€?the result is cached for the process lifetime.
     expect(second).toBe(first)
   })
 

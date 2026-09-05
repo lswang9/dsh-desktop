@@ -18,7 +18,7 @@ import {
 const WINDOWS_LOCK_FAILURE = [
   'Update failed: dshmarket',
   "error: EPERM: operation not permitted, rename 'C:\\Users\\u\\AppData\\Roaming\\dsh-desktop-dev\\harness\\profiles\\web\\node_modules\\argparse_tmp_19856_4' -> 'C:\\Users\\u\\AppData\\Roaming\\dsh-desktop-dev\\harness\\profiles\\web\\node_modules\\argparse'",
-  '    at Worker.<anonymous> (D:\\AA\\DSH Desktop Dev\\resources\\app\\node_modules\\pnpm\\dist\\pnpm.cjs:104217:22)'
+  '    at Worker.<anonymous> (D:\\AA\\Pierhouse Dev\\resources\\app\\node_modules\\pnpm\\dist\\pnpm.cjs:104217:22)'
 ].join('\n')
 
 const BLOCKED_TARGET =

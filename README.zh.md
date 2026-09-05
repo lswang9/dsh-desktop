@@ -1,6 +1,6 @@
 <h1 align="center">
-  <img src="docs/images/readme-logo-black-v020.png" width="64" alt="DSH Desktop Logo" valign="middle" />
-  DSH Desktop
+  <img src="docs/images/readme-logo-black-v020.png" width="64" alt="泊屋 Pierhouse Logo" valign="middle" />
+  泊屋 / Pierhouse
 </h1>
 
 <p align="center">
@@ -17,32 +17,32 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-x64-171513.svg" />
 </p>
 
-![DSH Desktop 的 Preset、模型提供方与手机控制能力](docs/images/dsh-desktop-hero-v020.png)
+![Pierhouse 的 Preset、模型提供方与手机控制能力](docs/images/dsh-desktop-hero-v020.png)
 
 <p align="center"><strong>使用 DeepSeek 官方模型或主流第三方模型，管理可移植的 Agent Preset，并在手机上继续 Harness 会话。</strong></p>
 
-DSH Desktop 把本地 DeepSeek Harness 封装为可安装的桌面应用。它会自动启动 Harness，把 Profile、插件、工作区、模型配置和会话保存在应用安装目录之外，并在本地 Runtime 就绪后直接进入完整 Harness 界面。
+Pierhouse 把本地 DeepSeek Harness 封装为可安装的桌面应用。它会自动启动 Harness，把 Profile、插件、工作区、模型配置和会话保存在应用安装目录之外，并在本地 Runtime 就绪后直接进入完整 Harness 界面。
 
 > [!IMPORTANT]
-> DSH Desktop 当前处于早期预览阶段，基于仍在快速迭代的 `@deepseek-ai/dsh@0.1.2-rc.1`。macOS 正式包已完成代码签名并通过 Apple 公证；Windows x64 安装包也已完成代码签名。随着下载量、安装量和发行者信誉逐步积累，Windows 安全提示会逐渐减少，但不会立即消失。
+> Pierhouse 当前处于早期预览阶段，基于仍在快速迭代的 `@deepseek-ai/dsh@0.1.2-rc.1`。macOS 正式包已完成代码签名并通过 Apple 公证；Windows x64 安装包也已完成代码签名。随着下载量、安装量和发行者信誉逐步积累，Windows 安全提示会逐渐减少，但不会立即消失。
 
 ## 下载安装
 
-请前往 [DSH Desktop 官网](https://www.dshdesktop.com/#download)下载 macOS 和 Windows 安装包。
+请前往 [Pierhouse 官网](https://www.dshdesktop.com/#download)下载 macOS 和 Windows 安装包。
 
-安装版会在启动后及每六小时检查更新。发现新版本时，DSH Desktop 会先询问用户；同意后才开始下载，只有选择“重新启动并安装”后才会进入安装。你也可以从应用菜单手动检查，或跳过当前版本而不影响后续版本提示。
+安装版会在启动后及每六小时检查更新。发现新版本时，Pierhouse 会先询问用户；同意后才开始下载，只有选择“重新启动并安装”后才会进入安装。你也可以从应用菜单手动检查，或跳过当前版本而不影响后续版本提示。
 
 ## 加入社区
 
 <p align="center">
-  使用微信扫描下方二维码，加入 DSH Desktop 微信交流群。<br />
-  <img src="docs/images/wechat-group-20260815.png" width="220" alt="DSH Desktop 微信群二维码" /><br />
-  也可以加入 <a href="https://discord.gg/he2gAKCpj">DSH Desktop Discord 社区</a>。
+  使用微信扫描下方二维码，加入 Pierhouse 微信交流群。<br />
+  <img src="docs/images/wechat-group-20260815.png" width="220" alt="Pierhouse 微信群二维码" /><br />
+  也可以加入 <a href="https://discord.gg/he2gAKCpj">Pierhouse Discord 社区</a>。
 </p>
 
-## DSH Desktop 带来了什么
+## Pierhouse 带来了什么
 
-DeepSeek Harness 已经提供 Agent Runtime 与 Web UI。DSH Desktop 在此基础上补齐真正的桌面宿主能力：
+DeepSeek Harness 已经提供 Agent Runtime 与 Web UI。Pierhouse 在此基础上补齐真正的桌面宿主能力：
 
 - 自动启动和停止 Harness，不需要另开 CLI 或浏览器标签页
 - 通过系统原生目录选择器添加和管理项目工作区
@@ -63,14 +63,14 @@ Harness 本身始终运行在随机的 `127.0.0.1` 端口。手机访问由独�
 
 ## 安全模式与故障恢复
 
-如果第三方插件导致启动或页面渲染异常，DSH Desktop 会结合 Runtime 与前端证据定位相关插件，并打开引导式恢复界面。
+如果第三方插件导致启动或页面渲染异常，Pierhouse 会结合 Runtime 与前端证据定位相关插件，并打开引导式恢复界面。
 
 从 `Harness` 菜单选择“以安全模式重启…”，应用会使用只包含官方核心 Bundle 的隔离 Profile 启动。正常 Profile 中的第三方插件会被屏蔽，但 Agent、会话、模型配置和工作区仍然可用。你可以从页面顶部的安全模式提示卸载选中的问题插件，或恢复正常启动。
 
 当正常界面无法进入时，也可以通过 `--safe-mode` 启动。例如 macOS：
 
 ```sh
-open -a "DSH Desktop" --args --safe-mode
+open -a "Pierhouse" --args --safe-mode
 ```
 
 ## 本地数据与安全边界
@@ -111,6 +111,6 @@ Harness 包含目标平台原生依赖，因此每一种正式安装包都在对
 
 ## 许可证
 
-DSH Desktop 采用 [MIT License](LICENSE) 开源。
+Pierhouse 采用 [MIT License](LICENSE) 开源。
 
-DeepSeek Harness 及其依赖仍遵循各自的上游许可证与商标规则。DSH Desktop 是独立的社区桌面应用。
+DeepSeek Harness 及其依赖仍遵循各自的上游许可证与商标规则。Pierhouse 是独立的社区桌面应用。

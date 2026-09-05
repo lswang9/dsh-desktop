@@ -1,6 +1,6 @@
 <h1 align="center">
-  <img src="docs/images/readme-logo-black-v020.png" width="64" alt="DSH Desktop logo" valign="middle" />
-  DSH Desktop
+  <img src="docs/images/readme-logo-black-v020.png" width="64" alt="Pierhouse logo" valign="middle" />
+  Pierhouse / 泊屋
 </h1>
 
 <p align="center">
@@ -18,32 +18,32 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-x64-171513.svg" />
 </p>
 
-![DSH Desktop overview with portable presets, model providers, and phone control](docs/images/dsh-desktop-hero-v020.png)
+![Pierhouse overview with portable presets, model providers, and phone control](docs/images/dsh-desktop-hero-v020.png)
 
 <p align="center"><strong>Use official DeepSeek models or mainstream third-party model providers, manage portable Agent presets, and continue your Harness sessions from your phone.</strong></p>
 
-DSH Desktop packages the local DeepSeek Harness experience as an installed desktop application. It starts Harness automatically, keeps profiles, plugins, workspaces, model settings, and sessions outside the application directory, and opens the full Harness interface as soon as the local runtime is ready.
+Pierhouse packages the local DeepSeek Harness experience as an installed desktop application. It starts Harness automatically, keeps profiles, plugins, workspaces, model settings, and sessions outside the application directory, and opens the full Harness interface as soon as the local runtime is ready.
 
 > [!IMPORTANT]
-> DSH Desktop is an early preview built on the rapidly evolving `@deepseek-ai/dsh@0.1.2-rc.1`. macOS releases are code-signed and notarized by Apple. Windows x64 installers are code-signed; Windows security warnings may still decrease gradually as the publisher builds download and installation reputation.
+> Pierhouse is an early preview built on the rapidly evolving `@deepseek-ai/dsh@0.1.2-rc.1`. macOS releases are code-signed and notarized by Apple. Windows x64 installers are code-signed; Windows security warnings may still decrease gradually as the publisher builds download and installation reputation.
 
 ## Download
 
-Download DSH Desktop for macOS and Windows from the [official website](https://www.dshdesktop.com/#download).
+Download Pierhouse for macOS and Windows from the [official website](https://www.dshdesktop.com/#download).
 
-Installed builds check for updates shortly after startup and every six hours. When a new version is available, DSH Desktop asks before downloading it; installation begins only after you choose **Restart and install**. You can also check manually from the application menu or skip one version without hiding future releases.
+Installed builds check for updates shortly after startup and every six hours. When a new version is available, Pierhouse asks before downloading it; installation begins only after you choose **Restart and install**. You can also check manually from the application menu or skip one version without hiding future releases.
 
 ## Community
 
 <p align="center">
-  Scan the QR code below with WeChat to join the DSH Desktop community group.<br />
-  <img src="docs/images/wechat-group-20260815.png" width="220" alt="DSH Desktop WeChat group QR code" /><br />
-  Prefer Discord? <a href="https://discord.gg/he2gAKCpj">Join the DSH Desktop Discord community</a>.
+  Scan the QR code below with WeChat to join the Pierhouse community group.<br />
+  <img src="docs/images/wechat-group-20260815.png" width="220" alt="Pierhouse WeChat group QR code" /><br />
+  Prefer Discord? <a href="https://discord.gg/he2gAKCpj">Join the Pierhouse Discord community</a>.
 </p>
 
-## What DSH Desktop adds
+## What Pierhouse adds
 
-DeepSeek Harness already provides the Agent runtime and Web UI. DSH Desktop adds the native host capabilities needed for a practical desktop product:
+DeepSeek Harness already provides the Agent runtime and Web UI. Pierhouse adds the native host capabilities needed for a practical desktop product:
 
 - Starts and stops Harness without requiring a separate CLI or browser tab
 - Uses the native system directory picker to add and manage project workspaces
@@ -64,14 +64,14 @@ Harness itself remains on a random `127.0.0.1` port. Phone access uses a separat
 
 ## Safe Mode and recovery
 
-If a third-party plugin interferes with startup or rendering, DSH Desktop can identify the implicated plugin from runtime and frontend evidence and open a guided recovery surface.
+If a third-party plugin interferes with startup or rendering, Pierhouse can identify the implicated plugin from runtime and frontend evidence and open a guided recovery surface.
 
 Choose **Restart as Safe Mode…** from the `Harness` menu to start an isolated profile containing only official core bundles. The Agent, sessions, model settings, and workspaces remain available while third-party plugins from the normal profile stay blocked. You can remove selected plugins or return to a normal launch from the Safe Mode banner.
 
-If the normal interface cannot be reached, start DSH Desktop with `--safe-mode`. On macOS:
+If the normal interface cannot be reached, start Pierhouse with `--safe-mode`. On macOS:
 
 ```sh
-open -a "DSH Desktop" --args --safe-mode
+open -a "Pierhouse" --args --safe-mode
 ```
 
 ## Local data and security
@@ -112,6 +112,6 @@ Before submitting a change, run `npm test`, `npm run typecheck`, and `npm run bu
 
 ## License
 
-DSH Desktop is open source under the [MIT License](LICENSE).
+Pierhouse is open source under the [MIT License](LICENSE).
 
-DeepSeek Harness and its dependencies remain subject to their respective upstream licenses and trademark policies. DSH Desktop is an independent community desktop application.
+DeepSeek Harness and its dependencies remain subject to their respective upstream licenses and trademark policies. Pierhouse is an independent community desktop application.

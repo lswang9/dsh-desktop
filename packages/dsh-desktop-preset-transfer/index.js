@@ -4,7 +4,7 @@ import { Zip, ZipDeflate, strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
 import { COMPOSITION_FILE, SETTINGS_NAMESPACE, scanRoot, writableRoot } from '@deepseek-ai/dsh-agent-presets'
 
 /**
- * Preset package export and import for DSH Desktop.
+ * Preset package export and import for Pierhouse.
  *
  * These two routes used to live in a patch on `@deepseek-ai/dsh-host-apiproxy`,
  * which 0.1.2-alpha.1 deleted. Upstream ships no preset transfer of its own —

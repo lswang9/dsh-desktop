@@ -1,7 +1,7 @@
 {
   "name": "dsh-desktop",
   "version": "0.1.1",
-  "description": "A cross-platform desktop shell for DeepSeek Harness.",
+  "description": "Pierhouse (泊屋) — a cross-platform desktop shell for DeepSeek Harness.",
   "private": true,
   "type": "module",
   "main": "./out/main/index.js",
@@ -300,8 +300,8 @@
     "koffi": "3.1.5"
   },
   "build": {
-    "appId": "io.dsh.desktop",
-    "productName": "DSH Desktop",
+    "appId": "app.pierhouse.desktop",
+    "productName": "Pierhouse",
     "asar": false,
     "npmRebuild": false,
     "compression": "maximum",
@@ -335,6 +335,10 @@
       {
         "from": "build/windows-child-process-hide.mjs",
         "to": "windows-child-process-hide.mjs"
+      },
+      {
+        "from": "build/windows-hidden-console.mjs",
+        "to": "windows-hidden-console.mjs"
       },
       {
         "from": "build/dsh-desktop.patch.yml",
@@ -372,7 +376,7 @@
       }
     ],
     "detectUpdateChannel": false,
-    "artifactName": "dsh-desktop-${os}-${arch}.${ext}",
+    "artifactName": "pierhouse-${os}-${arch}.${ext}",
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
@@ -399,7 +403,7 @@
       ]
     },
     "nsis": {
-      "artifactName": "dsh-desktop-windows-${arch}-setup.${ext}",
+      "artifactName": "pierhouse-windows-${arch}-setup.${ext}",
       "include": "build/installer.nsh",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,

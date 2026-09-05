@@ -6,7 +6,6 @@ window.__ModuleLoader__.load({
     Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' })
 
     const React = require('react')
-    const { BrandWordmark, FishLogo } = require('@deepseek-ai/dsh-client-ui-primitives')
 
     const LIGHT_LOGO_URL = '/dsh-desktop-logo-light.png'
     const DARK_LOGO_URL = '/dsh-desktop-logo-dark.png'
@@ -21,8 +20,13 @@ window.__ModuleLoader__.load({
         .dshDesktopBrandDark{display:none}
         body[data-ds-dark-theme] .dshDesktopBrandLight{display:none}
         body[data-ds-dark-theme] .dshDesktopBrandDark{display:block}
+        .dshDesktopBrandName{font-size:14px;font-weight:650;letter-spacing:-0.02em;line-height:1}
       `
       document.head.appendChild(style)
+    }
+
+    function isChineseLocale() {
+      return String(navigator.language || '').toLowerCase().startsWith('zh')
     }
 
     function DesktopBrandMark() {
@@ -58,11 +62,15 @@ window.__ModuleLoader__.load({
     }
 
     function DesktopBrandName() {
-      return React.createElement(BrandWordmark, { includeMark: false })
+      return React.createElement(
+        'span',
+        { className: 'dshDesktopBrandName' },
+        isChineseLocale() ? '泊屋' : 'Pierhouse'
+      )
     }
 
-    function ConversationBrandMark(props) {
-      return React.createElement(FishLogo, props)
+    function ConversationBrandMark() {
+      return DesktopBrandMark()
     }
 
     const inject = ['slots']

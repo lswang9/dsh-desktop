@@ -6,19 +6,19 @@ import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
 
 const REQUIRED_ASSETS = [
-  'dsh-desktop-mac-arm64.dmg',
-  'dsh-desktop-mac-arm64.zip',
-  'dsh-desktop-mac-arm64.zip.blockmap',
-  'dsh-desktop-mac-x64.dmg',
-  'dsh-desktop-mac-x64.zip',
-  'dsh-desktop-mac-x64.zip.blockmap',
-  'dsh-desktop-windows-x64-setup.exe',
-  'dsh-desktop-windows-x64-setup.exe.blockmap',
+  'pierhouse-mac-arm64.dmg',
+  'pierhouse-mac-arm64.zip',
+  'pierhouse-mac-arm64.zip.blockmap',
+  'pierhouse-mac-x64.dmg',
+  'pierhouse-mac-x64.zip',
+  'pierhouse-mac-x64.zip.blockmap',
+  'pierhouse-windows-x64-setup.exe',
+  'pierhouse-windows-x64-setup.exe.blockmap',
   'latest-mac.yml',
   'latest.yml'
 ]
 
-// A complete DSH Desktop runtime is substantially larger than these floors.
+// A complete Pierhouse runtime is substantially larger than these floors.
 // These catch truncated/corrupt artifacts without pinning normal release sizes.
 const DEFAULT_MINIMUM_BYTES = {
   dmg: 100 * 1024 * 1024,
@@ -109,9 +109,9 @@ export async function verifyReleaseAssets(releaseDir, version, options = {}) {
     await assertFileHeader(file, kind, fileStat.size)
   }
 
-  await assertUpdateEntry(root, 'latest.yml', version, 'dsh-desktop-windows-x64-setup.exe')
-  await assertUpdateEntry(root, 'latest-mac.yml', version, 'dsh-desktop-mac-arm64.zip')
-  await assertUpdateEntry(root, 'latest-mac.yml', version, 'dsh-desktop-mac-x64.zip')
+  await assertUpdateEntry(root, 'latest.yml', version, 'pierhouse-windows-x64-setup.exe')
+  await assertUpdateEntry(root, 'latest-mac.yml', version, 'pierhouse-mac-arm64.zip')
+  await assertUpdateEntry(root, 'latest-mac.yml', version, 'pierhouse-mac-x64.zip')
 }
 
 async function main() {

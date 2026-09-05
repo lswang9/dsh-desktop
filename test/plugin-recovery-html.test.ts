@@ -8,8 +8,8 @@ describe('plugin recovery page', () => {
   it('keeps the recovery surface focused on the next useful action', () => {
     expect(html).not.toContain('id="status"')
     expect(html).not.toContain('id="footer-note"')
-    expect(html).not.toContain('处理完成后会自动返回 DSH Desktop')
-    expect(html).not.toContain('DSH Desktop will reopen automatically when recovery is complete')
+    expect(html).not.toContain('处理完成后会自动返回 Pierhouse')
+    expect(html).not.toContain('Pierhouse will reopen automatically when recovery is complete')
   })
 
   it('keeps diagnostics and exit access without offering a redundant restart', () => {

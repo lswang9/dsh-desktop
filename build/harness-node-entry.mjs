@@ -44,8 +44,14 @@ if (process.platform === 'win32') {
   // The Harness is spawned console-less (detached + windowsHide), so child
   // console apps flash their own window unless the Harness owns a hidden
   // console for them to inherit (issue #233).
-  const { createHiddenConsole } = await import('./windows-hidden-console.mjs')
-  createHiddenConsole()
+  try {
+    const { createHiddenConsole } = await import('./windows-hidden-console.mjs')
+    createHiddenConsole()
+  } catch (error) {
+    process.stdout.write(
+      `[harness-node] hidden console unavailable: ${error?.stack ?? error}\n`
+    )
+  }
 
   enforceWindowsChildProcessHide(childProcess, syncBuiltinESMExports)
 

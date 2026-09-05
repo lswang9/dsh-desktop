@@ -365,7 +365,7 @@ export class HarnessRuntime {
       return
     }
     if (!existsSync(this.options.dshPatchPath)) {
-      this.setState('failed', `DSH Desktop patch was not found: ${this.options.dshPatchPath}`)
+      this.setState('failed', `Pierhouse patch was not found: ${this.options.dshPatchPath}`)
       return
     }
 

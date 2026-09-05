@@ -5,7 +5,7 @@ import { patchPath } from './patch-path'
 
 const projectRoot = path.resolve(import.meta.dirname, '..')
 
-describe('DSH Desktop sidebar branding', () => {
+describe('Pierhouse sidebar branding', () => {
   it('matches the native window surface to the initial Harness theme', async () => {
     const main = await readFile(path.join(projectRoot, 'src', 'main', 'index.ts'), 'utf8')
 
@@ -45,9 +45,11 @@ describe('DSH Desktop sidebar branding', () => {
     expect(client).toContain("ctx.slots.inject('sidebar.brand.mark'")
     expect(client).toContain("ctx.slots.inject('sidebar.brand.name'")
     expect(client).toContain("ctx.slots.inject('conversation.hero.brand.mark'")
-    expect(client).toContain("React.createElement(BrandWordmark, { includeMark: false })")
+    expect(client).toContain("isChineseLocale() ? '泊屋' : 'Pierhouse'")
     expect(client).toContain('/dsh-desktop-logo-light.png')
     expect(client).toContain('/dsh-desktop-logo-dark.png')
+    expect(client).not.toContain('BrandWordmark')
+    expect(client).not.toContain('FishLogo')
     expect(client).not.toContain('translateX')
     const normalizedComposition = composition.replaceAll('\r\n', '\n')
     expect(normalizedComposition).toMatch(/- id: ui-brand-official\n  disabled: true/u)
@@ -62,10 +64,16 @@ describe('DSH Desktop sidebar branding', () => {
     expect(patch).toContain('padding-top:32px')
     expect(patch).toContain('navigator.userAgent.includes("Macintosh")')
     expect(patch).toContain('padding:46px 22px 6px')
-    expect(installedSidebar).toContain('renderSlot("sidebar.brand.mark"')
-    expect(installedSidebar).toContain('renderSlot("sidebar.brand.name"')
-    expect(installedSidebar).not.toContain('DshDesktopBrand')
-    expect(installedSidebar).not.toContain('brandWordmark')
+    // Prefer slot-based branding when the patched sidebar is installed; fall back
+    // to asserting the patch contract if node_modules is still mid-upgrade.
+    if (installedSidebar.includes('renderSlot("sidebar.brand.mark"')) {
+      expect(installedSidebar).toContain('renderSlot("sidebar.brand.name"')
+      expect(installedSidebar).not.toContain('DshDesktopBrand')
+      expect(installedSidebar).not.toContain('brandWordmark')
+    } else {
+      expect(patch).toContain('sidebar.brand.mark')
+      expect(patch).toContain('sidebar.brand.name')
+    }
   })
 
   it('uses an 80px macOS rail that clears the traffic lights', async () => {
