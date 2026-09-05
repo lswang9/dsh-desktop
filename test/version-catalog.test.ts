@@ -3,19 +3,30 @@ import {
   archiveFeedUrl,
   compareVersions,
   fetchAvailableReleases,
+  GITHUB_UPDATE_FEED,
   parseVersionIndex,
-  STABLE_FEED_URL,
-  VERSION_INDEX_URL
+  STABLE_FEED_URL
 } from '../src/main/update/version-catalog'
 
 describe('version-catalog constants', () => {
-  it('points the stable feed and index at the dshdesktop domain', () => {
-    expect(STABLE_FEED_URL).toBe('https://dshdesktop.com/updates/latest/')
-    expect(VERSION_INDEX_URL).toBe('https://dshdesktop.com/updates/versions.json')
+  it('points the stable feed at the Pierhouse GitHub releases', () => {
+    expect(GITHUB_UPDATE_FEED).toEqual({
+      provider: 'github',
+      owner: 'lswang9',
+      repo: 'dsh-desktop'
+    })
+    expect(STABLE_FEED_URL).toBe(
+      'https://github.com/lswang9/dsh-desktop/releases/latest/download/'
+    )
   })
 
-  it('builds a per-version archive feed url with a trailing slash', () => {
-    expect(archiveFeedUrl('1.2.3')).toBe('https://dshdesktop.com/updates/archive/1.2.3/')
+  it('builds a per-version GitHub release download url with a trailing slash', () => {
+    expect(archiveFeedUrl('1.2.3')).toBe(
+      'https://github.com/lswang9/dsh-desktop/releases/download/v1.2.3/'
+    )
+    expect(archiveFeedUrl('v1.2.3')).toBe(
+      'https://github.com/lswang9/dsh-desktop/releases/download/v1.2.3/'
+    )
   })
 })
 
@@ -34,17 +45,42 @@ describe('compareVersions', () => {
 })
 
 describe('parseVersionIndex', () => {
-  it('keeps well-formed entries and drops the rest', () => {
+  it('keeps well-formed entries from the legacy versions.json shape', () => {
     const raw = {
       versions: [
-        { version: '1.2.3', tag: 'v1.2.3', archiveUrl: 'https://dshdesktop.com/updates/archive/1.2.3/' },
+        {
+          version: '1.2.3',
+          tag: 'v1.2.3',
+          archiveUrl: 'https://github.com/lswang9/dsh-desktop/releases/download/v1.2.3/'
+        },
         { version: '', tag: 'v0', archiveUrl: 'x' },
         { nope: true },
         42
       ]
     }
     expect(parseVersionIndex(raw)).toEqual([
-      { version: '1.2.3', tag: 'v1.2.3', archiveUrl: 'https://dshdesktop.com/updates/archive/1.2.3/' }
+      {
+        version: '1.2.3',
+        tag: 'v1.2.3',
+        archiveUrl: 'https://github.com/lswang9/dsh-desktop/releases/download/v1.2.3/'
+      }
+    ])
+  })
+
+  it('maps GitHub release API payloads into the catalog shape', () => {
+    expect(
+      parseVersionIndex([
+        { tag_name: 'v1.2.0', draft: false, prerelease: false },
+        { tag_name: 'v1.2.1-rc.1', draft: false, prerelease: true },
+        { tag_name: 'v1.1.0', draft: true, prerelease: false },
+        { tag_name: 'skip' }
+      ])
+    ).toEqual([
+      {
+        version: '1.2.0',
+        tag: 'v1.2.0',
+        archiveUrl: 'https://github.com/lswang9/dsh-desktop/releases/download/v1.2.0/'
+      }
     ])
   })
 
@@ -56,13 +92,11 @@ describe('parseVersionIndex', () => {
 })
 
 describe('fetchAvailableReleases', () => {
-  const index = {
-    versions: [
-      { version: '1.0.0', tag: 'v1.0.0', archiveUrl: 'a' },
-      { version: '1.2.0', tag: 'v1.2.0', archiveUrl: 'b' },
-      { version: '1.1.0', tag: 'v1.1.0', archiveUrl: 'c' }
-    ]
-  }
+  const index = [
+    { tag_name: 'v1.0.0', draft: false, prerelease: false },
+    { tag_name: 'v1.2.0', draft: false, prerelease: false },
+    { tag_name: 'v1.1.0', draft: false, prerelease: false }
+  ]
   const ok = () =>
     Promise.resolve({ ok: true, json: () => Promise.resolve(index) } as Response)
 

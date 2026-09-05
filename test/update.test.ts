@@ -102,7 +102,7 @@ describe('installing a specific version', () => {
     expect(manager).toContain('export async function installSpecificVersion')
     expect(manager).toContain('archiveFeedUrl(version)')
     expect(manager).toContain('autoUpdater.allowDowngrade = true')
-    expect(manager).toContain("setFeedURL({ provider: 'generic', url: STABLE_FEED_URL })")
+    expect(manager).toContain('autoUpdater.setFeedURL(GITHUB_UPDATE_FEED)')
     expect(manager).toContain('autoUpdater.allowDowngrade = false')
     expect(manager).toContain('downloadAvailableUpdate()')
   })

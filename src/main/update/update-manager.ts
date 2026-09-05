@@ -24,7 +24,7 @@ import {
   archiveFeedUrl,
   compareVersions,
   fetchAvailableReleases,
-  STABLE_FEED_URL
+  GITHUB_UPDATE_FEED
 } from './version-catalog'
 
 const { autoUpdater } = electronUpdater
@@ -201,7 +201,7 @@ export async function installSpecificVersion(version: unknown): Promise<UpdateSt
     scheduleReset()
   } finally {
     checkPromise = undefined
-    autoUpdater.setFeedURL({ provider: 'generic', url: STABLE_FEED_URL })
+    autoUpdater.setFeedURL(GITHUB_UPDATE_FEED)
     autoUpdater.allowDowngrade = false
     pendingDowngrade = false
   }

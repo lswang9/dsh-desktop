@@ -2,13 +2,31 @@ import type { AvailableRelease } from '../../shared/contracts'
 
 export type { AvailableRelease }
 
-export const STABLE_FEED_URL = 'https://dshdesktop.com/updates/latest/'
-export const VERSION_INDEX_URL = 'https://dshdesktop.com/updates/versions.json'
+/** GitHub repo that hosts Pierhouse installers and update metadata. */
+export const UPDATE_GITHUB_OWNER = 'lswang9'
+export const UPDATE_GITHUB_REPO = 'dsh-desktop'
 
+export const GITHUB_UPDATE_FEED = {
+  provider: 'github' as const,
+  owner: UPDATE_GITHUB_OWNER,
+  repo: UPDATE_GITHUB_REPO
+}
+
+/** @deprecated Prefer GITHUB_UPDATE_FEED; kept for tests that assert the stable channel. */
+export const STABLE_FEED_URL = `https://github.com/${UPDATE_GITHUB_OWNER}/${UPDATE_GITHUB_REPO}/releases/latest/download/`
+
+const RELEASES_API_URL = `https://api.github.com/repos/${UPDATE_GITHUB_OWNER}/${UPDATE_GITHUB_REPO}/releases`
 const INDEX_TIMEOUT_MS = 8_000
 
+/** Per-release asset base used by electron-updater's generic provider for one-shot downgrades. */
 export function archiveFeedUrl(version: string): string {
-  return `https://dshdesktop.com/updates/archive/${version}/`
+  const normalized = version.trim().replace(/^v/iu, '')
+  return `https://github.com/${UPDATE_GITHUB_OWNER}/${UPDATE_GITHUB_REPO}/releases/download/v${normalized}/`
+}
+
+export function releaseTag(version: string): string {
+  const normalized = version.trim().replace(/^v/iu, '')
+  return `v${normalized}`
 }
 
 /** Split "1.2.3-rc.1" into ([1,2,3], "rc.1"). Non-numeric segments read as 0. */
@@ -49,10 +67,29 @@ function isRelease(value: unknown): value is AvailableRelease {
 }
 
 export function parseVersionIndex(raw: unknown): AvailableRelease[] {
-  if (typeof raw !== 'object' || raw === null) return []
-  const versions = (raw as { versions?: unknown }).versions
-  if (!Array.isArray(versions)) return []
-  return versions.filter(isRelease)
+  if (typeof raw === 'object' && raw !== null && Array.isArray((raw as { versions?: unknown }).versions)) {
+    return ((raw as { versions: unknown[] }).versions).filter(isRelease)
+  }
+  if (!Array.isArray(raw)) return []
+  const releases: AvailableRelease[] = []
+  for (const entry of raw) {
+    if (typeof entry !== 'object' || entry === null) continue
+    const record = entry as {
+      draft?: unknown
+      prerelease?: unknown
+      tag_name?: unknown
+    }
+    if (record.draft === true || record.prerelease === true) continue
+    if (typeof record.tag_name !== 'string' || !record.tag_name.startsWith('v')) continue
+    const version = record.tag_name.slice(1)
+    if (!version) continue
+    releases.push({
+      version,
+      tag: record.tag_name,
+      archiveUrl: archiveFeedUrl(version)
+    })
+  }
+  return releases
 }
 
 export async function fetchAvailableReleases(
@@ -62,7 +99,13 @@ export async function fetchAvailableReleases(
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), INDEX_TIMEOUT_MS)
   try {
-    const response = await fetchImpl(VERSION_INDEX_URL, { signal: controller.signal })
+    const response = await fetchImpl(RELEASES_API_URL, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'Pierhouse-Updater'
+      }
+    })
     if (!response.ok) {
       throw new Error(`Version index request failed: ${response.status}`)
     }
