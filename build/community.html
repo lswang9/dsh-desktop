@@ -42,7 +42,7 @@
 <body>
 <header>
   <h1>意见与判断</h1>
-  <div class="sub">数据来自公开 GitHub Issues，匿名读取；提交意见会在浏览器中打开预填好的页面，应用不保存任何 token。</div>
+  <div class="sub">数据来自公开 GitHub Issues，匿名读取；提交意见会在浏览器中打开预填好的页面，应用不保存任何 token。判断依据公开的 <a id="principles">产品原则</a>。</div>
 </header>
 <nav>
   <button data-tab="judgments">意见与判断</button>
@@ -54,6 +54,7 @@
 (() => {
   const api = window.pierhouseCommunity
   const main = document.getElementById('main')
+  document.getElementById('principles').addEventListener('click', () => api.openUrl('https://github.com/lswang9/dsh-desktop/blob/main/PRODUCT_PRINCIPLES.md'))
   const DECISION = { accepted: '采纳', rejected: '不采纳', pending: '待判断' }
   const state = { tab: new URLSearchParams(location.search).get('tab') || 'judgments', filter: 'all', items: null, error: null }
 
@@ -93,7 +94,7 @@
       }))
     const search = h('input', { placeholder: '搜索标题…', oninput: () => draw() })
     bar.append(filter, search, h('button', { class: 'btn ghost', onclick: () => renderJudgmentsFresh() }, '刷新'),
-      h('span', { class: 'muted' }, '判断取自标签（accepted / rejected / P0–P2）和维护者最近一条评论（可写「判断：采纳 P1」「理由：…」）'))
+      h('span', { class: 'muted' }, '判断取自标签（accepted / rejected / P0–P2）和维护者最近一条评论，理由引用产品原则'))
     const stats = h('div', { class: 'stats' })
     const list = h('div')
     main.append(bar, stats, list)
