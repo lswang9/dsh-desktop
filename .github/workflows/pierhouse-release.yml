@@ -1,0 +1,158 @@
+name: Pierhouse release
+
+# Fork-friendly release: runs on tag push, needs no paid/self-hosted runners.
+# - Windows x64 NSIS installer (unsigned) + latest.yml for electron-updater
+# - macOS arm64 + x64 dmg/zip; signed only when DESKTOP_CSC_LINK is configured,
+#   otherwise unsigned (the app's macOS updater only opens the download page)
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pierhouse-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Test and typecheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+
+  windows:
+    name: Windows x64
+    needs: verify
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Set app version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm version --no-git-tag-version --allow-same-version "${{ github.ref_name }}"
+      - run: npm ci
+      - name: Build unsigned Windows installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run package:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pierhouse-windows-x64
+          path: |
+            dist/pierhouse-windows-x64-setup.exe
+            dist/pierhouse-windows-x64-setup.exe.blockmap
+            dist/latest.yml
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.arch }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Set app version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm version --no-git-tag-version --allow-same-version "${{ github.ref_name }}"
+      - run: npm ci
+      - name: Build macOS package (signed when secrets exist, otherwise unsigned)
+        env:
+          SIGN_CSC_LINK: ${{ secrets.DESKTOP_CSC_LINK }}
+          SIGN_CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_CSC_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          node scripts/verify-target.mjs darwin ${{ matrix.arch }}
+          npm run build
+          if [ -n "${SIGN_CSC_LINK:-}" ]; then
+            echo "Signing with DESKTOP_CSC_LINK (not notarized)"
+            CSC_LINK="$SIGN_CSC_LINK" CSC_KEY_PASSWORD="$SIGN_CSC_KEY_PASSWORD" \
+              npx electron-builder --mac --${{ matrix.arch }} --publish never
+          else
+            echo "::warning::No macOS signing secrets; building an unsigned package"
+            CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --${{ matrix.arch }} --publish never \
+              -c.mac.identity=null -c.mac.hardenedRuntime=false
+          fi
+          mv dist/latest-mac.yml dist/latest-mac-${{ matrix.arch }}.yml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pierhouse-mac-${{ matrix.arch }}
+          path: |
+            dist/pierhouse-mac-${{ matrix.arch }}.dmg
+            dist/pierhouse-mac-${{ matrix.arch }}.zip
+            dist/pierhouse-mac-${{ matrix.arch }}.zip.blockmap
+            dist/latest-mac-${{ matrix.arch }}.yml
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: [windows, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pierhouse-*
+          path: release-assets
+          merge-multiple: true
+      - name: Merge macOS update metadata
+        run: |
+          set -euo pipefail
+          node scripts/merge-mac-update-metadata.mjs \
+            release-assets/latest-mac-arm64.yml \
+            release-assets/latest-mac-x64.yml \
+            release-assets/latest-mac.yml
+          rm -f release-assets/latest-mac-arm64.yml release-assets/latest-mac-x64.yml
+      - name: Verify release assets
+        run: node scripts/verify-release-assets.mjs release-assets "${GITHUB_REF_NAME#v}"
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          {
+            echo "## 下载"
+            echo "- Windows x64：pierhouse-windows-x64-setup.exe（未签名，SmartScreen 可能提示，选择「仍要运行」）"
+            echo "- macOS Apple Silicon：pierhouse-mac-arm64.dmg；Intel：pierhouse-mac-x64.dmg"
+            echo "- macOS 包未签名/未公证：首次打开请右键 → 打开，或执行 \`xattr -dr com.apple.quarantine /Applications/Pierhouse.app\`"
+            echo
+          } > "$notes"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --clobber
+          else
+            gh release create "$TAG" release-assets/* --verify-tag --title "Pierhouse $TAG" \
+              --notes-file "$notes" --generate-notes
+          fi

@@ -1,9 +1,10 @@
 name: Release desktop installers
 
+# Upstream (dataelement) release pipeline: needs Apple secrets and a self-hosted
+# UKey runner. In the Pierhouse fork tag pushes are handled by
+# pierhouse-release.yml instead; this file stays for manual dispatch and PR
+# smoke builds so upstream merges stay trivial.
 on:
-  push:
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
