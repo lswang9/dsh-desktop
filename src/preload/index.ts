@@ -10,9 +10,11 @@ import {
 import { isPluginLoadError } from './plugin-error-view'
 import { findBootFailureText } from './boot-failure'
 import { mountWindowsTitlebarLayout } from './windows-titlebar'
+import { mountCommunityDock } from './community-dock'
 
 // Intercept and persist localStorage to disk storage before any page script executes
 setupDesktopStoragePersistence()
+mountCommunityDock()
 
 const ROOT_ID = 'dsh-desktop-update-root'
 const MOBILE_BUTTON_ID = 'dsh-desktop-mobile-button'

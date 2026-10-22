@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, powerMonitor } from 'electron'
+import { app, BrowserWindow, ipcMain, powerMonitor, shell } from 'electron'
 import electronUpdater from 'electron-updater'
 import type { UpdateStatus } from '../../shared/contracts'
 import {
@@ -26,6 +26,7 @@ import {
   fetchAvailableReleases,
   GITHUB_UPDATE_FEED
 } from './version-catalog'
+import { checkLatestRelease, RELEASES_PAGE, usesManualDownload } from './mac-release-check'
 
 const { autoUpdater } = electronUpdater
 const TRANSIENT_STATUS_MS = 8_000
@@ -45,6 +46,7 @@ let skippedVersion: string | undefined
 let skipLoaded = false
 let manualCheck = false
 let pendingDowngrade = false
+let manualDownloadUrl: string | undefined
 
 export function getUpdateStatus(): UpdateStatus {
   return { ...status }
@@ -133,7 +135,9 @@ export async function checkForUpdates(manual = false): Promise<UpdateStatus> {
   transition({ type: 'check', manual })
   manualCheck = manual
   lastCheckedAt = Date.now()
-  checkPromise = autoUpdater.checkForUpdates()
+  checkPromise = usesManualDownload(process.platform)
+    ? checkManualDownloadRelease()
+    : autoUpdater.checkForUpdates()
 
   try {
     await checkPromise
@@ -153,6 +157,11 @@ export async function checkForUpdates(manual = false): Promise<UpdateStatus> {
  */
 export async function downloadAvailableUpdate(): Promise<UpdateStatus> {
   if (status.phase !== 'available' || downloading) return getUpdateStatus()
+  if (usesManualDownload(process.platform)) {
+    await shell.openExternal(manualDownloadUrl ?? `${RELEASES_PAGE}/latest`)
+    transition({ type: 'reset' })
+    return getUpdateStatus()
+  }
   downloading = true
 
   try {
@@ -176,6 +185,10 @@ export async function downloadAvailableUpdate(): Promise<UpdateStatus> {
 export async function installSpecificVersion(version: unknown): Promise<UpdateStatus> {
   if (typeof version !== 'string' || !version) return getUpdateStatus()
   if (!supportsUpdates()) return getUpdateStatus()
+  if (usesManualDownload(process.platform)) {
+    await shell.openExternal(`${RELEASES_PAGE}/tag/v${version.replace(/^v/iu, '')}`)
+    return getUpdateStatus()
+  }
   if (checkPromise || ['checking', 'downloading', 'downloaded'].includes(status.phase)) {
     return getUpdateStatus()
   }
@@ -233,7 +246,27 @@ export function stopUpdateManager(): void {
   if (started && app.isReady()) powerMonitor.removeListener('resume', checkAfterResume)
 }
 
+/**
+ * macOS: look at the latest GitHub Release only; the update is "downloaded"
+ * by opening the release page in the browser.
+ */
+async function checkManualDownloadRelease(): Promise<void> {
+  const latest = await checkLatestRelease(app.getVersion())
+  if (!latest) {
+    transition({ type: 'not-available' })
+    scheduleReset()
+    return
+  }
+  if (!shouldOfferUpdate(latest.version, currentSkippedVersion(), manualCheck)) {
+    transition({ type: 'reset' })
+    return
+  }
+  manualDownloadUrl = latest.url
+  transition({ type: 'available', version: latest.version })
+}
+
 function configureUpdater(): void {
+  if (usesManualDownload(process.platform)) return
   // The download is ours to start: an update the user skipped should not be
   // fetched at all, and update-available is the only place that is known.
   autoUpdater.autoDownload = false

@@ -115,6 +115,7 @@ import {
   startUpdateManager,
   stopUpdateManager
 } from './update/update-manager'
+import { registerCommunityHandlers } from './community'
 import type { RuntimeSnapshot } from '../shared/contracts'
 import { resolveHarnessLocale } from './application-locale'
 import { installContextMenu } from './context-menu'
@@ -2594,6 +2595,7 @@ async function bootstrap(): Promise<void> {
   if (process.platform === 'darwin') app.dock?.setIcon(desktopIconPath())
   launchDirectory = await ensureLaunchRoot(app.getPath('userData'))
   registerUpdateHandlers()
+  registerCommunityHandlers()
   nativeTheme.themeSource = harnessThemePreference()
   ensureTray()
   const dshHome = join(app.getPath('userData'), 'harness')

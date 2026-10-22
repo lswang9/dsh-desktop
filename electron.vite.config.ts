@@ -11,7 +11,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve('src/preload/index.ts'),
-          'windows-menu': resolve('src/preload/windows-menu.ts')
+          'windows-menu': resolve('src/preload/windows-menu.ts'),
+          community: resolve('src/preload/community.ts')
         },
         output: {
           format: 'cjs',

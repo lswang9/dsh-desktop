@@ -1,6 +1,6 @@
 {
   "name": "dsh-desktop",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Pierhouse (泊屋) — a cross-platform desktop shell for DeepSeek Harness.",
   "private": true,
   "type": "module",
@@ -367,6 +367,10 @@
       {
         "from": "build/windows-menu.html",
         "to": "windows-menu.html"
+      },
+      {
+        "from": "build/community.html",
+        "to": "community.html"
       }
     ],
     "publish": [

@@ -50,9 +50,13 @@ export function updateHeadline(status: UpdateStatus, locale: UpdateLocale): Upda
     case 'available':
       return {
         title: zh ? '有可用更新' : 'Update available',
-        description: zh
-          ? `${version} 已发布，同意后开始下载。`
-          : `${version} is ready to download.`
+        description: process.platform === 'darwin'
+          ? zh
+            ? `${version} 已发布，点击后在浏览器打开下载页。`
+            : `${version} is out. Open the download page to install it.`
+          : zh
+            ? `${version} 已发布，同意后开始下载。`
+            : `${version} is ready to download.`
       }
     case 'downloading':
       return {

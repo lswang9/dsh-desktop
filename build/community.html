@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:" />
+<title>意见与判断 · 泊屋</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f7f8fa; --card:#fff; --fg:#1f2329; --muted:#8a8f99; --line:rgba(0,0,0,.08); --accent:#4d6bfe; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1c20; --card:#24262b; --fg:#eceef2; --muted:#9aa0aa; --line:rgba(255,255,255,.1); } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  header { padding:16px 24px 0; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:12px; }
+  nav { display:flex; gap:4px; padding:12px 24px 0; border-bottom:1px solid var(--line); }
+  nav button { border:0; background:none; color:var(--muted); padding:8px 14px; font:inherit; cursor:pointer; border-bottom:2px solid transparent; }
+  nav button.on { color:var(--fg); border-bottom-color:var(--accent); font-weight:600; }
+  main { padding:16px 24px 32px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .chip { font-size:12px; padding:1px 8px; border-radius:999px; border:1px solid var(--line); }
+  .accepted { background:#e6f7ec; color:#137333; border-color:#b7e4c7; }
+  .rejected { background:#fdecea; color:#b3261e; border-color:#f5c2c0; }
+  .pending { background:#f1f3f5; color:#5f6368; }
+  .P0 { background:#d73a4a; color:#fff; border:0; } .P1 { background:#e99695; color:#3b0d0d; border:0; } .P2 { background:#f9d0c4; color:#5c2b1e; border:0; }
+  a { color:var(--accent); cursor:pointer; text-decoration:none; }
+  .reason { margin-top:8px; white-space:pre-wrap; color:var(--fg); opacity:.9; font-size:13px; border-left:3px solid var(--line); padding-left:10px; }
+  .toolbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  select, input, textarea { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; }
+  textarea { width:100%; min-height:160px; resize:vertical; }
+  input.wide { width:100%; }
+  label { display:block; margin:12px 0 4px; font-weight:600; }
+  .btn { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:8px 16px; cursor:pointer; font:inherit; font-weight:600; }
+  .btn.ghost { background:none; color:var(--accent); border:1px solid var(--line); }
+  pre.info { background:var(--card); border:1px dashed var(--line); padding:10px; border-radius:8px; font-size:12px; color:var(--muted); white-space:pre-wrap; }
+  .stats { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; min-width:96px; }
+  .stat b { display:block; font-size:20px; }
+  .muted { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>意见与判断</h1>
+  <div class="sub">数据来自公开 GitHub Issues，匿名读取；提交意见会在浏览器中打开预填好的页面，应用不保存任何 token。</div>
+</header>
+<nav>
+  <button data-tab="judgments">意见与判断</button>
+  <button data-tab="next">下一步要改</button>
+  <button data-tab="feedback">提意见</button>
+</nav>
+<main id="main"></main>
+<script>
+(() => {
+  const api = window.pierhouseCommunity
+  const main = document.getElementById('main')
+  const DECISION = { accepted: '采纳', rejected: '不采纳', pending: '待判断' }
+  const state = { tab: new URLSearchParams(location.search).get('tab') || 'judgments', filter: 'all', items: null, error: null }
+
+  const h = (tag, attrs = {}, ...children) => {
+    const node = document.createElement(tag)
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') node.className = v
+      else if (k.startsWith('on')) node.addEventListener(k.slice(2), v)
+      else node.setAttribute(k, v)
+    }
+    for (const c of children.flat()) if (c != null) node.append(c instanceof Node ? c : document.createTextNode(String(c)))
+    return node
+  }
+  const link = (text, url) => h('a', { onclick: () => api.openUrl(url) }, text)
+  const date = (s) => (s ? new Date(s).toLocaleDateString('zh-CN') : '')
+
+  function select(tab) {
+    state.tab = tab
+    document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab))
+    render()
+  }
+  document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => select(b.dataset.tab)))
+  api.onSelectTab(select)
+
+  async function render() {
+    main.replaceChildren()
+    if (state.tab === 'feedback') return renderFeedback()
+    if (state.tab === 'next') return renderNext()
+    return renderJudgments()
+  }
+
+  async function renderJudgments(force = false) {
+    const bar = h('div', { class: 'toolbar' })
+    const filter = h('select', { onchange: (e) => { state.filter = e.target.value; draw() } },
+      ...[['all', '全部'], ['accepted', '采纳'], ['rejected', '不采纳'], ['pending', '待判断'], ['open', '未关闭']].map(([v, t]) => {
+        const o = h('option', { value: v }, t); if (v === state.filter) o.selected = true; return o
+      }))
+    const search = h('input', { placeholder: '搜索标题…', oninput: () => draw() })
+    bar.append(filter, search, h('button', { class: 'btn ghost', onclick: () => renderJudgmentsFresh() }, '刷新'),
+      h('span', { class: 'muted' }, '判断取自标签（accepted / rejected / P0–P2）和维护者最近一条评论（可写「判断：采纳 P1」「理由：…」）'))
+    const stats = h('div', { class: 'stats' })
+    const list = h('div')
+    main.append(bar, stats, list)
+    list.append(h('div', { class: 'muted' }, '正在从 GitHub 读取…'))
+    try {
+      state.items = await api.feedback(force)
+      state.error = null
+    } catch (e) { state.error = e.message || String(e) }
+    function draw() {
+      list.replaceChildren(); stats.replaceChildren()
+      if (state.error) { list.append(h('div', { class: 'card' }, '读取失败：' + state.error)); return }
+      const items = state.items || []
+      const count = (d) => items.filter((i) => i.judgment.decision === d).length
+      stats.append(
+        h('div', { class: 'stat' }, h('b', {}, items.length), '全部意见'),
+        h('div', { class: 'stat' }, h('b', {}, count('accepted')), '采纳'),
+        h('div', { class: 'stat' }, h('b', {}, count('rejected')), '不采纳'),
+        h('div', { class: 'stat' }, h('b', {}, count('pending')), '待判断'))
+      const q = search.value.trim().toLowerCase()
+      const shown = items.filter((i) =>
+        (state.filter === 'all' || (state.filter === 'open' ? i.state === 'open' : i.judgment.decision === state.filter)) &&
+        (!q || i.title.toLowerCase().includes(q)))
+      const rank = { P0: 0, P1: 1, P2: 2 }
+      shown.sort((a, b) => (rank[a.judgment.priority] ?? 9) - (rank[b.judgment.priority] ?? 9) || b.updatedAt.localeCompare(a.updatedAt))
+      if (!shown.length) list.append(h('div', { class: 'card muted' }, items.length ? '没有符合条件的意见。' : '还没有意见，欢迎第一个提！'))
+      for (const i of shown) {
+        const j = i.judgment
+        list.append(h('div', { class: 'card' },
+          h('div', { class: 'row' },
+            h('span', { class: 'chip ' + j.decision }, DECISION[j.decision]),
+            j.priority ? h('span', { class: 'chip ' + j.priority }, j.priority) : null,
+            i.labels.includes('next') ? h('span', { class: 'chip' }, '下一步') : null,
+            link('#' + i.number + ' ' + i.title, i.url)),
+          h('div', { class: 'muted' }, `${i.state === 'open' ? '进行中' : '已关闭'} · @${i.author} · ${date(i.createdAt)} 提出 · ${i.comments} 条评论` +
+            (j.source === 'label' ? ' · 判断来自标签' : j.source === 'comment' ? ' · 判断来自维护者评论' : '') +
+            (j.judgedBy ? ` · @${j.judgedBy}` : '')),
+          j.reason ? h('div', { class: 'reason' }, '理由：' + j.reason) : (j.decision === 'pending' ? null : h('div', { class: 'muted' }, '（维护者暂未写理由）'))))
+      }
+    }
+    draw()
+  }
+  const renderJudgmentsFresh = () => { main.replaceChildren(); renderJudgments(true) }
+
+  async function renderNext() {
+    main.append(h('div', { class: 'muted' }, '正在读取带 next 标签的 open issues…'))
+    try {
+      const items = await api.next(false)
+      main.replaceChildren()
+      if (!items.length) main.append(h('div', { class: 'card muted' }, '暂无计划。'))
+      for (const i of items) main.append(h('div', { class: 'card' }, h('div', { class: 'row' },
+        ...i.labels.filter((l) => /^P[012]$/.test(l)).map((p) => h('span', { class: 'chip ' + p }, p)),
+        link('#' + i.number + ' ' + i.title, i.url)), h('div', { class: 'muted' }, '更新于 ' + date(i.updatedAt))))
+    } catch (e) { main.replaceChildren(h('div', { class: 'card' }, '读取失败：' + (e.message || e))) }
+  }
+
+  async function renderFeedback() {
+    const info = await api.systemInfo()
+    const kind = h('select', {}, h('option', { value: 'idea' }, '建议'), h('option', { value: 'bug' }, '问题 / Bug'), h('option', { value: 'other' }, '其他'))
+    const title = h('input', { class: 'wide', placeholder: '一句话说明（必填）' })
+    const desc = h('textarea', { placeholder: '具体描述：发生了什么、期望怎样、如何复现…' })
+    const msg = h('div', { class: 'muted' })
+    const submit = h('button', { class: 'btn', onclick: async () => {
+      if (!title.value.trim()) { msg.textContent = '请先填写标题。'; title.focus(); return }
+      await api.submitFeedback({ title: title.value, kind: kind.value, description: desc.value })
+      msg.textContent = '已在浏览器中打开预填好的 GitHub 页面，确认后点击 Submit 即可（需要登录 GitHub）。'
+    } }, '在浏览器中提交')
+    main.append(h('div', { class: 'card' },
+      h('label', {}, '类型'), kind,
+      h('label', {}, '标题'), title,
+      h('label', {}, '描述'), desc,
+      h('label', {}, '将自动附带的信息'),
+      h('pre', { class: 'info' }, `版本：Pierhouse v${info.appVersion}\n系统：${info.platform} ${info.osVersion} (${info.arch})\nElectron：${info.electron}\n语言：${info.locale}`),
+      h('div', { class: 'row' }, submit, msg),
+      h('p', { class: 'muted' }, '提交后会带上 feedback 标签，维护者的判断（采纳/不采纳、优先级、理由）会显示在「意见与判断」页。')))
+    title.focus()
+  }
+
+  select(['feedback', 'next', 'judgments'].includes(state.tab) ? state.tab : 'judgments')
+})()
+</script>
+</body>
+</html>
